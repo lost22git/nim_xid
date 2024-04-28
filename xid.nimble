@@ -12,7 +12,7 @@ requires "nim >= 2.0.0", "checksums"
 
 task installBenchDeps, "install deps for bench":
   exec "nimble install criterion"
-  exec "nimble install nimble install uuid4"
+  exec "nimble install uuid4"
 
 task bench, "run bench":
   exec "nimble installBenchDeps"

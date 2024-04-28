@@ -1,4 +1,3 @@
-# import timeit
 import criterion
 
 import std/oids
