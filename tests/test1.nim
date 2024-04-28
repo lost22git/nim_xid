@@ -1,4 +1,5 @@
 import unittest
+import std/strutils
 
 import xid
 test "initXid":
@@ -13,11 +14,18 @@ test "parseXid":
   let s = "9m4e2mr0ui3e8a215n4g"
   check s == $parseXid(s)
 
+# NOTE: would be disordered in a second when counter overflow 3bytes
+#
 test "ordered!":
-  var max = "0"
-  for i in 1 .. 5000:
-    let xid = $initXid()
-    if xid > max:
-      max = xid
+  var prev = ""
+  var curr = ""
+  for i in 1 .. 1_000_000:
+    curr = $initXid()
+    if curr > prev:
+      prev = curr
     else:
-      raise newException(ValueError, "disordered")
+      echo "-".repeat(66)
+      parseXid(prev).debug
+      echo "-".repeat(66)
+      parseXid(curr).debug
+      raise newException(ValueError, "disordered!")

@@ -1,6 +1,9 @@
 
 # Xid for Nim lang
 
+> NOTE:
+> would be disordered in a second when counter overflow 3bytes
+
 
 ## Resources
 

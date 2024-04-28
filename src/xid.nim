@@ -1,4 +1,10 @@
-import std/os, random, times, atomics, streams, strutils, strformat
+from std/os import getCurrentProcessId
+from std/random import initRand, next
+from std/times import Time, getTime, toUnix, fromUnix
+from std/atomics import Atomic, fetchAdd, store
+from std/strutils import strip, alignLeft
+from std/strformat import fmt
+from std/streams import FileStream, openFileStream, readAll, close
 import checksums/md5
 
 #[
@@ -212,7 +218,7 @@ let
   rawProcessId = loadProcessId()
 
 proc readTime(): array[4, uint8] {.inline.} =
-  var ts = epochTime().uint32
+  var ts = getTime().toUnix().uint32
   result = [(ts shr 24).uint8, (ts shr 16).uint8, (ts shr 8).uint8, ts.uint8]
 
 proc initCounter(): Atomic[uint32] =
