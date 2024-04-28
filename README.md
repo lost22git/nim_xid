@@ -2,7 +2,8 @@
 # Xid for Nim lang
 
 > NOTE:
-> would be disordered in a second when counter overflow 3bytes
+> Would be disordered in a second when counter overflow 3bytes
+> Not applicable to scenarios where ordered data is imported in batches
 
 
 ## Resources
