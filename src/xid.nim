@@ -89,7 +89,7 @@ const base32EncTab = "0123456789abcdefghijklmnopqrstuv"
 
 const base32DecTab = initBase32DecTab()
 
-proc base32Encode(raw: openArray[uint8]): string =
+proc base32Encode(raw: openArray[uint8]): string {.inline.} =
   var s = newStringOfCap(20)
   s.add base32EncTab[(raw[0] shr 3).uint32]
   s.add base32EncTab[((raw[1] shr 6) and 0x1F or (raw[0] shl 2) and 0x1F).uint32]
@@ -231,7 +231,7 @@ proc nextCount(): array[3, uint8] {.inline.} =
   let old = counter.fetchAdd(1)
   result = [(old shr 16).uint8, (old shr 8).uint8, old.uint8]
 
-proc initXid*(): Xid {.inline.} =
+proc initXid*(): Xid =
   Xid(
     rawTime: readTime(),
     rawMachineId: rawMachineId,
