@@ -169,6 +169,21 @@ type Xid* {.packed.} = object
   rawProcessId: array[2, uint8]
   rawCount: array[3, uint8]
 
+proc `==`*(a, b: Xid): bool =
+  equalMem(addr a, addr b, 12)
+
+iterator items*(xid: Xid): uint8 =
+  ## uint8 iterator 
+  ##
+  runnableExamples:
+    block:
+      let xid = initXid()
+      for b in xid:
+        echo b
+
+  for b in cast[array[12, uint8]](xid):
+    yield b
+
 proc loadMachineIdOnLinux(): seq[uint8] {.raises: [XidError, IOError, OSError].} =
   for path in ["/var/lib/dbus/machine-id", "/etc/machine-id"]:
     var fs: FileStream
@@ -219,8 +234,8 @@ let
   rawMachineId = loadMachineId()
   rawProcessId = loadProcessId()
 
-proc readTime(): array[4, uint8] {.inline.} =
-  var ts = getTime().toUnix().uint32
+proc readTime(time: Time): array[4, uint8] {.inline.} =
+  var ts = time.toUnix().uint32
   result = [(ts shr 24).uint8, (ts shr 16).uint8, (ts shr 8).uint8, ts.uint8]
 
 proc initCounter(): Atomic[uint32] =
@@ -233,7 +248,7 @@ proc nextCount(): array[3, uint8] {.inline.} =
   let old = counter.fetchAdd(1)
   result = [(old shr 16).uint8, (old shr 8).uint8, old.uint8]
 
-proc initXid*(): Xid =
+proc initXid*(time: Time = getTime()): Xid =
   ## init Xid
   ##
   runnableExamples:
@@ -241,8 +256,13 @@ proc initXid*(): Xid =
       let xid = initXid()
       xid.debug()
 
+    import std/times
+    block:
+      let xid = initXid(time = getTime())
+      xid.debug()
+
   Xid(
-    rawTime: readTime(),
+    rawTime: readTime(time),
     rawMachineId: rawMachineId,
     rawProcessId: rawProcessId,
     rawCount: nextCount(),
