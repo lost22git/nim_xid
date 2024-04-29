@@ -234,6 +234,13 @@ proc nextCount(): array[3, uint8] {.inline.} =
   result = [(old shr 16).uint8, (old shr 8).uint8, old.uint8]
 
 proc initXid*(): Xid =
+  ## init Xid
+  ##
+  runnableExamples:
+    block:
+      let xid = initXid()
+      xid.debug()
+
   Xid(
     rawTime: readTime(),
     rawMachineId: rawMachineId,
@@ -242,6 +249,13 @@ proc initXid*(): Xid =
   )
 
 proc parseXid*(s: string): Xid {.raises: [XidError].} =
+  ## parse Xid from a string
+  ##
+  runnableExamples:
+    block:
+      let xid = parseXid("9m4e2mr0ui3e8a215n4g")
+      xid.debug()
+
   try:
     let raw = base32Decode(s)
     result = cast[Xid](raw)
@@ -249,29 +263,80 @@ proc parseXid*(s: string): Xid {.raises: [XidError].} =
     raise newException(XidError, "XID: failed to parse: " & e.msg)
 
 proc castToXid*(raw: array[12, uint8]): Xid =
+  ## cast a 12 bytes as Xid
+  ##
+  runnableExamples:
+    block:
+      let raw =
+        [byte 0x4d, 0x88, 0xe1, 0x5b, 0x60, 0xf4, 0x86, 0xe4, 0x28, 0x41, 0x2d, 0xc9]
+      let xid = castToXid(raw)
+      xid.debug()
+
   cast[Xid](raw)
 
 proc `$`*(xid: Xid): string =
+  ## Xid base32 hex string repr
+  ##
+  runnableExamples:
+    block:
+      let xidBase32Hex = $initXid()
+      echo xidBase32Hex
+
   base32Encode cast[array[12, uint8]](xid)
 
 proc time*(xid: Xid): Time =
+  ## resolve Time from Xid
+  ##
+  runnableExamples:
+    block:
+      let time = initXid().time()
+      echo time
+
   let v = xid.rawTime
   let ts = (v[0].uint32 shl 24) + (v[1].uint32 shl 16) + (v[2].uint32 shl 8) + v[3]
   result = fromUnix(ts.int64)
 
 proc machineId*(xid: Xid): uint32 =
+  ## resolve machine-id uint32 value from Xid
+  ##
+  runnableExamples:
+    block:
+      let machineId = initXid().machineId()
+      echo machineId
+
   let v = xid.rawMachineId
-  (v[0].uint32 shl 16) + (v[1].uint32 shl 8) + v[2]
+  result = (v[0].uint32 shl 16) + (v[1].uint32 shl 8) + v[2]
 
 proc processId*(xid: Xid): uint16 =
+  ## resolve process-id uint16 value from Xid
+  ##
+  runnableExamples:
+    block:
+      let processId = initXid().processId()
+      echo processId
+
   let v = xid.rawProcessId
   result = (v[0].uint16 shl 8) + (v[1].uint16)
 
 proc count*(xid: Xid): uint32 =
+  ## resolve count uint32 value from Xid
+  ##
+  runnableExamples:
+    block:
+      let count = initXid().count()
+      echo count
+
   let v = xid.rawCount
   result = (v[0].uint32 shl 16) + (v[1].uint32 shl 8) + v[2]
 
 proc debug*(xid: Xid) =
+  ## echo Xid debug info
+  ##
+  runnableExamples:
+    block:
+      let xid = initXid()
+      xid.debug()
+
   echo "XID".alignLeft(15), " : ", xid.repr
   echo "XID string".alignLeft(15), " : ", $xid
   echo "XID time".alignLeft(15), " : ", $xid.time()
