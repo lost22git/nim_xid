@@ -7,6 +7,7 @@
 > A simple solution: 
 > Compare the id generated each time with the last one. If it is less than the last generated id, wait for a while and try again.
 
+[API DOC](https://lost22git.github.io/nim_xid/xid.html)
 
 ## Resources
 
