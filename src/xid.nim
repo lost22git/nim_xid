@@ -262,7 +262,7 @@ proc parseXid*(s: string): Xid {.raises: [XidError].} =
   except Exception as e:
     raise newException(XidError, "XID: failed to parse: " & e.msg)
 
-proc castToXid*(raw: array[12, uint8]): Xid =
+proc castToXid*(raw: array[12, uint8]): Xid {.inline.} =
   ## cast a 12 bytes as Xid
   ##
   runnableExamples:

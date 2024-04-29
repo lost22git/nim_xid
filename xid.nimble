@@ -11,8 +11,8 @@ srcDir = "src"
 requires "nim >= 2.0.0", "checksums"
 
 task installBenchDeps, "install deps for bench":
-  exec "nimble install criterion"
-  exec "nimble install uuid4"
+  exec "nimble install criterion -y"
+  exec "nimble install uuid4 -y"
 
 task bench, "run bench":
   exec "nimble installBenchDeps"
