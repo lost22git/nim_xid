@@ -1,0 +1,12 @@
+nimTitle	xid	xid.html	module src/xid		0
+nim	XidError	xid.html#XidError	object XidError		164
+nim	Xid	xid.html#Xid	object Xid		166
+nim	initXid	xid.html#initXid	proc initXid(): Xid		236
+nim	parseXid	xid.html#parseXid,string	proc parseXid(s: string): Xid		251
+nim	castToXid	xid.html#castToXid,array[,uint8]	proc castToXid(raw: array[12, uint8]): Xid		265
+nim	`$`	xid.html#$,Xid	proc `$`(xid: Xid): string		277
+nim	time	xid.html#time,Xid	proc time(xid: Xid): Time		287
+nim	machineId	xid.html#machineId,Xid	proc machineId(xid: Xid): uint32		299
+nim	processId	xid.html#processId,Xid	proc processId(xid: Xid): uint16		310
+nim	count	xid.html#count,Xid	proc count(xid: Xid): uint32		321
+nim	debug	xid.html#debug,Xid	proc debug(xid: Xid)		332

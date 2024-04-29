@@ -16,4 +16,7 @@ task installBenchDeps, "install deps for bench":
 
 task bench, "run bench":
   exec "nimble installBenchDeps"
-  exec "nim c -r -d:release --opt:speed ./bench/bench1.nim"
+  exec "nim c -r -d:release --opt:speed bench/bench1.nim"
+
+task docs, "generate docs":
+  exec "nimble doc --index:on --project --out:docs src/xid.nim"
