@@ -6,7 +6,7 @@ on:
 env:
   nim-version: 'stable'
   nim-src: src/xid.nim
-  deploy-dir: .gh-pages
+  deploy-dir: docs
 jobs:
   docs:
     runs-on: ubuntu-latest
