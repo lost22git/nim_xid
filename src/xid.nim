@@ -3,7 +3,6 @@ from std/random import initRand, next
 from std/times import Time, getTime, toUnix, fromUnix
 from std/atomics import Atomic, fetchAdd, store
 from std/strutils import strip, alignLeft
-from std/strformat import fmt
 from std/streams import FileStream, openFileStream, readAll, close
 import checksums/md5
 
@@ -113,7 +112,7 @@ proc base32Encode(raw: openArray[uint8]): string {.inline.} =
   s.add base32EncTab[((raw[11] shl 4) and 0x1F).uint32]
   result = s
 
-proc base32Decode(s: string): array[12, uint8] =
+proc base32Decode(s: string): array[12, uint8] {.raises: [ValueError].} =
   if s.len != 20:
     raise newException(ValueError, "failed to base32Decode, input length must be 20")
 
@@ -156,6 +155,12 @@ proc base32Decode(s: string): array[12, uint8] =
 
 ]#
 
+proc md5sum(input: openArray[uint8]): MD5Digest =
+  var md5Context: MD5Context
+  md5Context.md5Init()
+  md5Context.md5Update(input)
+  md5Context.md5Final(result)
+
 type XidError* = object of ValueError
 
 type Xid* {.packed.} = object
@@ -164,34 +169,31 @@ type Xid* {.packed.} = object
   rawProcessId: array[2, uint8]
   rawCount: array[3, uint8]
 
-proc loadMachineIdOnLinux(): seq[uint8] =
+proc loadMachineIdOnLinux(): seq[uint8] {.raises: [XidError, IOError, OSError].} =
   for path in ["/var/lib/dbus/machine-id", "/etc/machine-id"]:
     var fs: FileStream
     try:
       fs = openFileStream(path, fmRead)
       let content = fs.readAll().strip()
       if content != "":
-        echo fmt"XID: load machine id: {content}"
+        echo "XID: load machine id: " & content
         return cast[seq[uint8]](content)
-      echo fmt"XID: failed to load machine id, read `{path}` is blank, trying next path"
+      echo "XID: failed to load machine id, read `" & path &
+        "` is blank, trying next path"
     except Exception:
-      echo fmt"XID: failed to load machine id, read `{path}` failed, trying next path"
+      echo "XID: failed to load machine id, read `" & path & "` failed, trying next path"
     finally:
       if fs != nil:
         fs.close()
   raise newException(XidError, "XID: failed to load machine id")
 
-proc loadMachineId(): array[3, uint8] =
+proc loadMachineId(): array[3, uint8] {.raises: [XidError, IOError, OSError].} =
   let machineId =
     when defined(linux):
       loadMachineIdOnLinux()
     else:
       raise newException(XidError, "XID: unimplemented on the platform")
-  var md5Context: MD5Context
-  var md5Digest: MD5Digest
-  md5Context.md5Init()
-  md5Context.md5Update(machineId)
-  md5Context.md5Final(md5Digest)
+  let md5Digest = md5sum(machineId)
   result = [md5Digest[0], md5Digest[1], md5Digest[2]]
 
 proc loadProcessId(): array[2, uint8] =
@@ -207,10 +209,10 @@ proc loadProcessId(): array[2, uint8] =
       finally:
         if fs != nil:
           fs.close()
-    echo fmt"XID: read `/proc/self/cpuset`: {s}"
+    echo "XID: read `/proc/self/cpuset`: " & s
     if s != "":
       pid = pid xor crc32(s)
-  echo fmt"XID: load process id: {pid}"
+  echo "XID: load process id: " & $pid
   result = [(pid shr 8).uint8, pid.uint8]
 
 let
@@ -239,7 +241,7 @@ proc initXid*(): Xid =
     rawCount: nextCount(),
   )
 
-proc parseXid*(s: string): Xid =
+proc parseXid*(s: string): Xid {.raises: [XidError].} =
   try:
     let raw = base32Decode(s)
     result = cast[Xid](raw)
