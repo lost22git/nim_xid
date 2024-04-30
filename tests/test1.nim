@@ -1,5 +1,6 @@
 import unittest
 import std/strutils
+import std/os
 
 import xid
 test "initXid":
@@ -19,7 +20,7 @@ test "parseXid":
 test "ordered!":
   var prev = ""
   var curr = ""
-  for i in 1 .. 1_000_000:
+  for i in 1 .. 6_000_000:
     curr = $initXid()
     if curr > prev:
       prev = curr

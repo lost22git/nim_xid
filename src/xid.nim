@@ -163,7 +163,7 @@ proc md5sum(input: openArray[uint8]): MD5Digest =
 
 type XidError* = object of ValueError
 
-type Xid* {.packed.} = object
+type Xid* = object
   rawTime: array[4, uint8]
   rawMachineId: array[3, uint8]
   rawProcessId: array[2, uint8]
@@ -313,7 +313,7 @@ proc time*(xid: Xid): Time =
       echo time
 
   let v = xid.rawTime
-  let ts = (v[0].uint32 shl 24) + (v[1].uint32 shl 16) + (v[2].uint32 shl 8) + v[3]
+  let ts = (v[0].uint32 shl 24) or (v[1].uint32 shl 16) or (v[2].uint32 shl 8) or v[3]
   result = fromUnix(ts.int64)
 
 proc machineId*(xid: Xid): uint32 =
@@ -325,7 +325,7 @@ proc machineId*(xid: Xid): uint32 =
       echo machineId
 
   let v = xid.rawMachineId
-  result = (v[0].uint32 shl 16) + (v[1].uint32 shl 8) + v[2]
+  result = (v[0].uint32 shl 16) or (v[1].uint32 shl 8) or v[2]
 
 proc processId*(xid: Xid): uint16 =
   ## resolve process-id uint16 value from Xid
@@ -336,7 +336,7 @@ proc processId*(xid: Xid): uint16 =
       echo processId
 
   let v = xid.rawProcessId
-  result = (v[0].uint16 shl 8) + (v[1].uint16)
+  result = (v[0].uint16 shl 8) or (v[1].uint16)
 
 proc count*(xid: Xid): uint32 =
   ## resolve count uint32 value from Xid
@@ -347,7 +347,7 @@ proc count*(xid: Xid): uint32 =
       echo count
 
   let v = xid.rawCount
-  result = (v[0].uint32 shl 16) + (v[1].uint32 shl 8) + v[2]
+  result = (v[0].uint32 shl 16) or (v[1].uint32 shl 8) or v[2]
 
 proc debug*(xid: Xid) =
   ## echo Xid debug info
