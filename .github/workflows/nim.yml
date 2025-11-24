@@ -20,7 +20,7 @@ jobs:
       - name: Install Nim
         uses: jiro4989/setup-nim-action@v2
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install deps
         run: nimble install -y
       - name: Run tests
